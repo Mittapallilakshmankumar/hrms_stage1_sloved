@@ -1,172 +1,9 @@
-
-
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-# from .models import Candidate, Education
-# from .serializers import CandidateSerializer
-
-
-# # ✅ CREATE (POST)
-# @api_view(['POST'])
-# def add_candidate(request):
-#     print("DATA:", request.data)
-#     print("FILES:", request.FILES)
-
-#     try:
-#         data = request.data
-#         photo = request.FILES.get('photo')   # ✅ image
-
-#         # 🔥 CREATE CANDIDATE
-#         candidate = Candidate.objects.create(
-#             first_name=data.get("first_name", ""),
-#             last_name=data.get("last_name", ""),
-#             email=data.get("email", ""),
-#             phone=data.get("phone", ""),
-#             aadhaar=data.get("aadhaar", ""),
-#             pan=data.get("pan", ""),
-#             uan=data.get("uan", ""),
-#             official_email=data.get("official_email", ""),
-#             address_line1=data.get("address_line1", ""),
-#             address_line2=data.get("address_line2", ""),
-#             city=data.get("city", ""),
-#             experience=data.get("experience", ""),
-#             source=data.get("source", ""),
-#             skills=data.get("skills", ""),
-#             department=data.get("department", ""),
-#             status="Pending",
-#             photo=photo   # ✅ SAVE IMAGE
-#         )
-
-#         print("SAVED SUCCESSFULLY:", candidate.id)
-
-#         # 🔥 SAVE EDUCATION
-#         education_list = data.get("education", [])
-
-#         for edu in education_list:
-#             Education.objects.create(
-#                 candidate=candidate,
-#                 school=edu.get("School Name", ""),
-#                 degree=edu.get("Degree / Diploma", ""),
-#                 field_of_study=edu.get("Field of Study", ""),
-#                 notes=edu.get("Notes", "")
-#             )
-
-#         return Response({
-#             "message": "Candidate saved successfully",
-#             "id": candidate.id
-#         })
-
-#     except Exception as e:
-#         print("ERROR:", str(e))
-#         return Response({
-#             "error": str(e)
-#         })
-
-
-# # ✅ GET ALL
-# @api_view(['GET'])
-# def get_candidates(request):
-#     try:
-#         candidates = Candidate.objects.all()
-#         serializer = CandidateSerializer(candidates, many=True)
-#         return Response(serializer.data)
-#     except Exception as e:
-#         return Response({"error": str(e)})
-
-
-# # ✅ DELETE
-# @api_view(['DELETE'])
-# def delete_candidate(request, id):
-#     try:
-#         candidate = Candidate.objects.get(id=id)
-#         candidate.delete()
-#         return Response({"message": "Deleted successfully"})
-#     except Candidate.DoesNotExist:
-#         return Response({"error": "Candidate not found"})
-
-
-# # ✅ UPDATE
-# @api_view(['PUT'])
-# def update_candidate(request, id):
-#     try:
-#         candidate = Candidate.objects.get(id=id)
-#         data = request.data
-
-#         candidate.first_name = data.get("first_name", candidate.first_name)
-#         candidate.last_name = data.get("last_name", candidate.last_name)
-#         candidate.email = data.get("email", candidate.email)
-#         candidate.phone = data.get("phone", candidate.phone)
-
-#         # 🔥 update photo if exists
-#         if request.FILES.get('photo'):
-#             candidate.photo = request.FILES.get('photo')
-
-#         candidate.save()
-
-#         return Response({"message": "Updated successfully"})
-
-#     except Candidate.DoesNotExist:
-#         return Response({"error": "Candidate not found"})
-#     except Exception as e:
-#         return Response({"error": str(e)})
-
-# @api_view(['POST'])
-# def approve_candidate(request, id):
-#     try:
-#         candidate = Candidate.objects.get(id=id)
-#         candidate.status = "Approved"
-#         candidate.save()
-
-#         return Response({"message": "Approved"})
-#     except Candidate.DoesNotExist:
-#         return Response({"error": "Not found"}, status=404)
-
-
-
-
-
-
-# from datetime import date
-# from attendance.models import Attendance
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-
-
-# from datetime import date
-# from attendance.models import Attendance
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-
-# @api_view(['GET'])
-# def dashboard(request):
-#     today = date.today()
-
-#     present = Attendance.objects.filter(
-#         check_in__isnull=False,
-#         date__month=today.month
-#     ).count()
-
-#     absent = Attendance.objects.filter(
-#         check_in__isnull=True,
-#         date__month=today.month
-#     ).count()
-
-#     return Response({
-#         "present_days": present,
-#         "absent_days": absent,
-#         "pending_requests": 0,   # temporary
-#         "leave_balance": 20      # fixed for now
-#     })
-
-
-
-
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Candidate, Education
 from .serializers import CandidateSerializer
 from datetime import date 
-
+from django.contrib.auth.hashers import make_password 
 
 # ✅ CREATE (POST)
 @api_view(['POST'])
@@ -185,6 +22,7 @@ def add_candidate(request):
             email=data.get("email", ""),
             phone=data.get("phone", ""),
             aadhaar=data.get("aadhaar", ""),
+            password=make_password(data.get("password", "")), 
             pan=data.get("pan", ""),
             uan=data.get("uan", ""),
             official_email=data.get("official_email", ""),
@@ -274,55 +112,34 @@ def update_candidate(request, id):
         return Response({"error": str(e)})
 
 # 👈 add at top
-# from datetime import date
-# from .models import Candidate, Employee
 
-# @api_view(['POST'])
-# def approve_candidate(request, id):
-#     try:
-#         candidate = Candidate.objects.get(id=id)
-
-#         # ✅ SAVE ALL DETAILS
-#         Employee.objects.create(
-#             name=candidate.first_name + " " + candidate.last_name,
-#             email=candidate.email,
-#             phone=candidate.phone,
-#             department=candidate.department,
-#             date_of_joining=date.today()
-#         )
-
-#         # ❌ remove from candidates
-#         candidate.delete()
-
-#         return Response({"message": "Moved to Employee"})
-
-#     except Exception as e:
-#         return Response({"error": str(e)})
 
 from datetime import date
 from .models import Candidate, Employee
+
 
 @api_view(['POST'])
 def approve_candidate(request, id):
     try:
         candidate = Candidate.objects.get(id=id)
 
-        # 🔥 STEP 1: GENERATE EMPLOYEE ID (ADD HERE)
-        last_emp = Employee.objects.all().order_by('id').last()
+        # 🔥 STEP 1: GENERATE EMP ID
+        last_emp = Employee.objects.last()
 
         if last_emp and last_emp.employee_id:
-            last_num = int(last_emp.employee_id.replace("ARCE499", ""))
+            last_num = int(last_emp.employee_id.replace("ARCE", ""))
             new_num = last_num + 1
         else:
-            new_num = 1
+            new_num = 499
 
-        emp_id = f"ARCE499{str(new_num).zfill(3)}"
+        emp_id = f"ARCE{new_num}"
 
-        # 🔥 STEP 2: CREATE EMPLOYEE (ADD employee_id HERE)
+        # 🔥 STEP 2: CREATE EMPLOYEE
         Employee.objects.create(
-            employee_id=emp_id,   # 👈 ADD THIS
+            employee_id=emp_id,
             name=candidate.first_name + " " + candidate.last_name,
             email=candidate.email,
+            password=candidate.password,   # 🔥 ADD THIS ALSO
             phone=candidate.phone,
             department=candidate.department,
             date_of_joining=date.today()
@@ -377,10 +194,7 @@ from .models import Employee
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-# @api_view(['GET'])
-# def list_employees(request):
-#     employees = Employee.objects.all().values()
-#     return Response(list(employees))
+
 @api_view(['GET'])
 def list_employees(request):
     employees = Employee.objects.all().values(
